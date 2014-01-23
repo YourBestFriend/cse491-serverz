@@ -1,7 +1,7 @@
 import server
 
-	#=========================== PAGE CONTENT =================================================
-	content1 = """<html style='background-color: black;'>
+#=========================== PAGE CONTENT =================================================
+content1 = """<html style='background-color: black;'>
 
 			<body style='border: 5px solid brown; 
 					border-radius: 500px; 
@@ -15,7 +15,7 @@ import server
 
 			 #<h1 id='header' style='color: black; opacity: .5;'>Howdy World ^_^</h1>
 
-	content2 = """    <p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>
+content2 = """    <p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>
 
 			  <script type='text/javascript'>
 				window.setInterval(function(){ changeColor(); }, 75);
@@ -39,7 +39,7 @@ import server
 
 		        </body>
 	              </html>"""
-	#==========================================================================================
+#==========================================================================================
 
 class FakeConnection(object):
     """
