@@ -19,20 +19,46 @@ while True:
     c, (client_host, client_port) = s.accept()
     print c.recv(1000)
     print 'Got connection from', client_host, client_port
-    c.send("HTTP/1.0 200 OK \r")
-    c.send("Content-type: text/html\n\n")
-    c.send("<html style='background-color: black;'>\n")
-    c.send("<body style='border: 5px solid brown; border-radius: 500px; background-color: tan; font-style: italic; padding: 50px; display: inline-block; position: absolute; left: 25%; top: 25%;'>\n\n")
-    c.send("<h1 id='header' style='color: black; opacity: .5;'>Howdy World ^_^</h1>\n")
-    c.send("<p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>\n")
+    c.send("HTTP/1.0 200 OK\r\n")
+    c.send("Content-type: text/html\r\n\r\n")
+    c.send('''
+	<html style='background-color: black;'>
 
-    c.send("<script type='text/javascript'>\n")
-    c.send("window.setInterval(function(){ changeColor(); }, 75);")
-    c.send("var colour = 'red';")
-    c.send("function changeColor(){ document.getElementById('header').style.color= colour; newColour();}")
-    c.send("function newColour(){   if(colour == 'red'){colour = 'darkorange';} else if(colour == 'darkorange'){colour = 'yellow';} else if(colour == 'yellow'){colour = 'chartreuse';} else if(colour == 'chartreuse'){colour = 'cyan';} else if(colour == 'cyan'){colour = 'indigo';} else if(colour == 'indigo'){colour = 'red';}   }")
-    c.send("</script>")
+		<body style='border: 5px solid brown; 
+				border-radius: 500px; 
+				background-color: tan; 
+				font-style: italic; 
+				padding: 50px; 
+				display: inline-block; 
+				position: absolute; 
+				left: 25%; 
+				top: 25%;'>
 
-    c.send("</body>\n\n")
-    c.send("</html>\n\n")
+		  	<h1 id='header' style='color: black; opacity: .5;'>Howdy World ^_^</h1>
+
+		 	<p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>
+
+			<script type='text/javascript'>
+				window.setInterval(function(){ changeColor(); }, 75);
+				var color = 'red';
+
+				function changeColor()
+				{ 
+					document.getElementById('header').style.color= color; newColor();
+				}
+
+				function newColor()
+				{   
+					if(color == 'red'){color = 'darkorange';} 
+					else if(color == 'darkorange'){color = 'yellow';} 
+					else if(color == 'yellow'){color = 'chartreuse';} 
+					else if(color == 'chartreuse'){color = 'cyan';} 
+					else if(color == 'cyan'){color = 'indigo';} 
+					else if(color == 'indigo'){color = 'red';}   
+				}
+			</script>
+
+		</body>
+	</html>
+	''')
     c.close()
