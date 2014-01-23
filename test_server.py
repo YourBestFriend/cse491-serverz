@@ -75,6 +75,9 @@ def test_handle_connection_get():
 		      "Content-type: text/html\r\n\r\n" + \
 		      content1 + \
 	              "<h1 id='header' style='color: black; opacity: .5;'>ZZZzzzz -_-</h1>" + \
+		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/content'>Content</a>" + \
+		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/file'>File</a>" + \
+		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/image'>Image</a>" + \
 		      content2
 
     server.handle_connection(conn)
@@ -105,9 +108,6 @@ def test_handle_connection_file():
 		      "Content-type: text/html\r\n\r\n" + \
 		      content1 + \
 	              "<h1 id='header' style='color: black; opacity: .5;'>File ^_^</h1>" + \
-                      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/content'>Content</a>" + \
-		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/file'>File</a>" + \
-		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/image'>Image</a>" + \
 		      content2
 
     server.handle_connection(conn)

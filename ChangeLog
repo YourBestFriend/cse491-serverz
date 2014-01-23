@@ -11,3 +11,9 @@
 2014-01-23  Tim Hasselbeck
 
  * Made corrections to server.py in light of the in-class code review.
+
+
+2013-01-23  Tim Hasselbeck
+
+ * Updated server.py to process different requests differently.
+ * Added test_server.py for the purposes of unit testing.
