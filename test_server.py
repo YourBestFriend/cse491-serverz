@@ -1,7 +1,7 @@
 import server
 
 	#=========================== PAGE CONTENT =================================================
-	content1 = """<html style='background-color: black;'>
+content1 = """<html style='background-color: black;'>
 
 			<body style='border: 5px solid brown; 
 					border-radius: 500px; 
@@ -15,7 +15,7 @@ import server
 
 			 #<h1 id='header' style='color: black; opacity: .5;'>Howdy World ^_^</h1>
 
-	content2 = """    <p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>
+content2 = """    <p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>
 
 			  <script type='text/javascript'>
 				window.setInterval(function(){ changeColor(); }, 75);
@@ -69,7 +69,7 @@ class FakeConnection(object):
 
 
 # Test GET / call.
-def test_handle_connection_get():
+def test_generateGet():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
@@ -78,6 +78,8 @@ def test_handle_connection_get():
 		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/content'>Content</a>" + \
 		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/file'>File</a>" + \
 		      "<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/image'>Image</a>" + \
+		      "<p>GET Name Submission</p><form action='/submit' method='GET'><input style='width: 150px' type='text' name='firstname'><input style='width: 150px' type='text' name='lastname'><input type='submit' value='Submit'></form>" + \
+		      "<p>POST Name Submission</p><form action='/submit' method='POST'><input style='width: 150px'type='text' name='firstname'><input style='width: 150px' type='text' name='lastname'><input type='submit' value='Submit'></form>" + \
 		      content2
 
     server.handle_connection(conn)
@@ -87,7 +89,7 @@ def test_handle_connection_get():
 
 
 # Test GET /content call.
-def test_handle_connection_content():
+def test_generateGetContent():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
@@ -102,7 +104,7 @@ def test_handle_connection_content():
 
 
 # Test GET /file call.
-def test_handle_connection_file():
+def test_generateGetFile():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
@@ -117,7 +119,7 @@ def test_handle_connection_file():
 
 
 # Test GET /image call.
-def test_handle_connection_image():
+def test_generateGetImage():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
@@ -131,8 +133,24 @@ def test_handle_connection_image():
 
 
 
+# Test GET /submit call. UNTESTED!!!
+def test_generateGetSubmit():
+    conn = FakeConnection("GET /submit?firstname=Bill&lastname=Nye HTTP/1.0\r\n\r\n")
+    expected_return = "HTTP/1.0 200 OK\r\n" + \
+		      "Content-type: text/html\r\n\r\n" + \
+		      content1 + \
+	              "<h1 id='header' style='color: black; opacity: .5;'>GET Submit</h1>" + \
+		      "Howdy thar Mr. %Bill %Nye!" + \
+		      content2
+
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+
+
 # Test POST / call.
-def test_handle_connection_post():
+def test_generatePost():
     conn = FakeConnection("POST / HTTP/1.0\r\n\r\n")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
@@ -143,3 +161,20 @@ def test_handle_connection_post():
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+
+
+# Test POST /submit call. UNTESTED!!!
+def test_generatePostSubmit():
+    conn = FakeConnection("POST /submit HTTP/1.0\r\n\r\n")
+    expected_return = "HTTP/1.0 200 OK\r\n" + \
+		      "Content-type: text/html\r\n\r\n" + \
+		      content1 + \
+	              "<h1 id='header' style='color: black; opacity: .5;'>POST Submit</h1>" + \
+		      "Howdy thar Mr. %Bill %Nye!" + \
+		      content2
+
+    server.handle_connection(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+

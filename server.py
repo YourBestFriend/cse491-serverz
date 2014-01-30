@@ -2,6 +2,7 @@
 import random
 import socket
 import time
+import urlparse
 
 def main():
 	s = socket.socket()         # Create a socket object
@@ -22,12 +23,18 @@ def main():
 
 def handle_connection(conn):
 	requestData = conn.recv(1000)
-    	getPost = requestData.split()[0]
-    	path = requestData.split()[1] 
-
+    	
    	#print 'Got connection from', client_host, client_port  <<<<NO WORKY!!!
     	print 'Connection Acquired.'
+	
+	getPost = requestData.split()[0]
+    	path = requestData.split()[1] 
+	parsedPath = urlparse.urlparse(path)
 
+	print 'path: '+path
+	print parsedPath	
+	print requestData
+	
 
 	#=========================== PAGE CONTENT =================================================
 	content1 = """<html style='background-color: black;'>
@@ -72,49 +79,100 @@ def handle_connection(conn):
 
 
     	if getPost == 'POST':
-		conn.send("HTTP/1.0 200 OK\r\n")
-	    	conn.send("Content-type: text/html\r\n\r\n")
-	    	conn.send(content1)
-		conn.send("<h1 id='header' style='color: black; opacity: .5;'>Howdy World ^_^</h1>")
-		conn.send(content2)
-		conn.close()
+		if path == '/':
+			generatePost(conn, content1, content2)
+		elif path == '/submit':
+			generatePostSubmit(conn, content1, content2, parsedPath)#No Worky
 
 	elif getPost == 'GET':
 		if path == '/':
-			conn.send("HTTP/1.0 200 OK\r\n")
-		    	conn.send("Content-type: text/html\r\n\r\n")
-		    	conn.send(content1)
-			conn.send("<h1 id='header' style='color: black; opacity: .5;'>ZZZzzzz -_-</h1>")
-			conn.send("<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/content'>Content</a>")
-			conn.send("<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/file'>File</a>")
-			conn.send("<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/image'>Image</a>")
-			conn.send(content2)
-			conn.close()
+			generateGet(conn, content1, content2)
 
 		elif path == '/content':
-			conn.send("HTTP/1.0 200 OK\r\n")
-		    	conn.send("Content-type: text/html\r\n\r\n")
-		    	conn.send(content1)
-			conn.send("<h1 id='header' style='color: black; opacity: .5;'>Content ^_^</h1>")
-			conn.send(content2)
-			conn.close()
+			generateGetContent(conn, content1, content2)
 
 		elif path == '/file':
-			conn.send("HTTP/1.0 200 OK\r\n")
-		    	conn.send("Content-type: text/html\r\n\r\n")
-		    	conn.send(content1)
-			conn.send("<h1 id='header' style='color: black; opacity: .5;'>File ^_^</h1>")
-			conn.send(content2)
-			conn.close()
+			generateGetFile(conn, content1, content2)
 
 		elif path == '/image':
-			conn.send("HTTP/1.0 200 OK\r\n")
-		    	conn.send("Content-type: text/html\r\n\r\n")
-		    	conn.send(content1)
-			conn.send("<h1 id='header' style='color: black; opacity: .5;'>Image ^_^</h1>")
-			conn.send(content2)
-			conn.close()
-			
+			generateGetImage(conn, content1, content2)
+
+		elif path == '/submit':
+			generateGetSubmit(conn, content1, content2, parsedPath)#No Worky
+		
+
+def generatePost(conn, content1, content2):
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>Howdy World ^_^</h1>")
+	conn.send(content2)
+	conn.close()
+
+def generatePostSubmit(conn, content1, content2, parsedPath):
+	queryDict = parsedPath[4].split("&")
+	firstName = queryDict[0].split("=")[1]
+	lastName = queryDict[1].split("=")[1]
+	
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>POST Submit</h1>")
+	conn.send("Howdy thar Mr. %s %s!" % (firstName, lastName))
+	conn.send(content2)
+	conn.close()
+
+def generateGet(conn, content1, content2):
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>ZZZzzzz -_-</h1>")
+	conn.send("<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/content'>Content</a>")
+	conn.send("<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/file'>File</a>")
+	conn.send("<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/image'>Image</a>")
+	conn.send("<p>GET Name Submission</p><form action='/submit' method='GET'><input style='width: 150px' type='text' name='firstname'><input style='width: 150px' type='text' name='lastname'><input type='submit' value='Submit'></form>")
+	conn.send("<p>POST Name Submission</p><form action='/submit' method='POST'><input style='width: 150px'type='text' name='firstname'><input style='width: 150px' type='text' name='lastname'><input type='submit' value='Submit'></form>")
+	conn.send(content2)
+	conn.close()
+
+def generateGetContent(conn, content1, content2):
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>Content ^_^</h1>")
+	conn.send(content2)
+	conn.close()
+
+def generateGetFile(conn, content1, content2):
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>File ^_^</h1>")
+	conn.send(content2)
+	conn.close()
+
+def generateGetImage(conn, content1, content2):
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>Image ^_^</h1>")
+	conn.send(content2)
+	conn.close()
+
+def generateGetSubmit(conn, content1, content2, parsedPath):
+	queryDict = parsedPath[4].split("&")
+	firstName = queryDict[0].split("=")[1]
+	lastName = queryDict[1].split("=")[1]
+	
+	conn.send("HTTP/1.0 200 OK\r\n")
+    	conn.send("Content-type: text/html\r\n\r\n")
+    	conn.send(content1)
+	conn.send("<h1 id='header' style='color: black; opacity: .5;'>GET Submit</h1>")
+	conn.send("Howdy thar Mr. %s %s!" % (firstName, lastName))
+	conn.send(content2)
+	conn.close()
+
+	
 
 if __name__ == '__main__':
    main()
