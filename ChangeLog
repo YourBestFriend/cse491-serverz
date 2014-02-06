@@ -20,3 +20,12 @@
  * Added Form Submit infrastructure
  * Separated content generation into functions depending on path & GetPost
  * Added test cases
+
+
+2014-02-05
+
+ * POST can now haddle requests with content-type = multipart/form-data
+ * Added a templates folder which now holds the html for each page
+ * Added test cases 
+	NOTE: The 3 test cases for the POST requests have a KeyError 
+	      pertaining to 'Content-Length'. I'm not sure why...
