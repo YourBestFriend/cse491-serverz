@@ -133,14 +133,14 @@ def test_generateGetImage():
 
 
 
-# Test GET /submit call. UNTESTED!!!
+# Test GET /submit call.
 def test_generateGetSubmit():
-    conn = FakeConnection("GET /submit?firstname=Bill&lastname=Nye HTTP/1.0\r\n\r\n")
+    conn = FakeConnection("GET /submit?firstname=Bill&lastname=Nye HTTP/1.0HTTP/1.1\r\n\r\n")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
 		      content1 + \
 	              "<h1 id='header' style='color: black; opacity: .5;'>GET Submit</h1>" + \
-		      "Howdy thar Mr. %Bill %Nye!" + \
+		      "Howdy thar Mr. Bill Nye!" + \
 		      content2
 
     server.handle_connection(conn)
@@ -164,14 +164,14 @@ def test_generatePost():
 
 
 
-# Test POST /submit call. UNTESTED!!!
+# Test POST /submit call.
 def test_generatePostSubmit():
-    conn = FakeConnection("POST /submit HTTP/1.0\r\n\r\n")
+    conn = FakeConnection("POST /submit HTTP/1.1\r\n\r\nfirstname=Bill&lastname=Nye")
     expected_return = "HTTP/1.0 200 OK\r\n" + \
 		      "Content-type: text/html\r\n\r\n" + \
 		      content1 + \
 	              "<h1 id='header' style='color: black; opacity: .5;'>POST Submit</h1>" + \
-		      "Howdy thar Mr. %Bill %Nye!" + \
+		      "Howdy thar Mr. Bill Nye!" + \
 		      content2
 
     server.handle_connection(conn)

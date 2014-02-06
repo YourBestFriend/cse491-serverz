@@ -25,15 +25,14 @@ def handle_connection(conn):
 	requestData = conn.recv(1000)
     	
    	#print 'Got connection from', client_host, client_port  <<<<NO WORKY!!!
-    	print 'Connection Acquired.'
+    	print requestData
 	
-	getPost = requestData.split()[0]
-    	path = requestData.split()[1] 
-	parsedPath = urlparse.urlparse(path)
+	firstLine = requestData.split('\r\n')[0].split(' ')
 
-	print 'path: '+path
-	print parsedPath	
-	print requestData
+	getPost = firstLine[0]
+	parsedPath = urlparse.urlparse(firstLine[1])
+	path = parsedPath[2]
+
 	
 
 	#=========================== PAGE CONTENT =================================================
@@ -82,7 +81,7 @@ def handle_connection(conn):
 		if path == '/':
 			generatePost(conn, content1, content2)
 		elif path == '/submit':
-			generatePostSubmit(conn, content1, content2, parsedPath)#No Worky
+			generatePostSubmit(conn, content1, content2, requestData.split('\r\n')[-1])
 
 	elif getPost == 'GET':
 		if path == '/':
@@ -98,7 +97,7 @@ def handle_connection(conn):
 			generateGetImage(conn, content1, content2)
 
 		elif path == '/submit':
-			generateGetSubmit(conn, content1, content2, parsedPath)#No Worky
+			generateGetSubmit(conn, content1, content2, parsedPath[4])
 		
 
 def generatePost(conn, content1, content2):
@@ -110,9 +109,10 @@ def generatePost(conn, content1, content2):
 	conn.close()
 
 def generatePostSubmit(conn, content1, content2, parsedPath):
-	queryDict = parsedPath[4].split("&")
-	firstName = queryDict[0].split("=")[1]
-	lastName = queryDict[1].split("=")[1]
+	parsedPath = urlparse.parse_qs(parsedPath);
+	
+	firstName = parsedPath['firstname'][0]
+	lastName = parsedPath['lastname'][0]
 	
 	conn.send("HTTP/1.0 200 OK\r\n")
     	conn.send("Content-type: text/html\r\n\r\n")
@@ -160,9 +160,10 @@ def generateGetImage(conn, content1, content2):
 	conn.close()
 
 def generateGetSubmit(conn, content1, content2, parsedPath):
-	queryDict = parsedPath[4].split("&")
-	firstName = queryDict[0].split("=")[1]
-	lastName = queryDict[1].split("=")[1]
+	parsedPath = urlparse.parse_qs(parsedPath);
+	
+	firstName = parsedPath['firstname'][0]
+	lastName = parsedPath['lastname'][0]
 	
 	conn.send("HTTP/1.0 200 OK\r\n")
     	conn.send("Content-type: text/html\r\n\r\n")
