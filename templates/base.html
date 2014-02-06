@@ -1,0 +1,39 @@
+<html style='background-color: black;'>
+
+	<body style='border: 5px solid brown; 
+			border-radius: 500px; 
+			background-color: tan; 
+			font-style: italic; 
+			padding: 50px; 
+			display: inline-block; 
+			position: absolute; 
+			left: 25%; 
+			top: 25%;'>
+
+{% block content %}
+{% endblock %}
+
+		<p style='color: dimgray;'>This here is YourBestFriend's Web server!!!</p>
+
+		<script type='text/javascript'>
+			window.setInterval(function(){ changeColor(); }, 75);
+			var color = 'red';
+
+			function changeColor()
+			{ 
+				document.getElementById('header').style.color= color; newColor();
+			}
+
+			function newColor()
+			{   
+				if(color == 'red'){color = 'darkorange';} 
+				else if(color == 'darkorange'){color = 'yellow';} 
+				else if(color == 'yellow'){color = 'chartreuse';} 
+				else if(color == 'chartreuse'){color = 'cyan';} 
+				else if(color == 'cyan'){color = 'indigo';} 
+				else if(color == 'indigo'){color = 'red';}   
+			}
+		</script>
+
+	</body>
+</html>

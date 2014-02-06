@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 id='header' style='color: black; opacity: .5;'>ZZZzzzz -_-</h1>
+
+<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/content'>Content</a>
+
+<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/file'>File</a>
+
+<a style='color: DarkSlateGray; margin: 15px; text-decoration: none;' href='/image'>Image</a>
+
+<p>GET Name Submission</p><form action='/submit' method='GET'><input style='width: 150px' type='text' name='firstname'><input style='width: 150px' type='text' name='lastname'><input type='submit' value='Submit'></form>
+
+<p>POST Name Submission</p><form action='/submit' method='POST'><input style='width: 150px'type='text' name='firstname'><input style='width: 150px' type='text' name='lastname'><input type='submit' value='Submit'></form>
+
+{% endblock %}
