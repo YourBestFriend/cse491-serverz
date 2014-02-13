@@ -13,7 +13,9 @@ def simple_app(environ, start_response):
 
 	getPost = environ['REQUEST_METHOD']
 	path = environ['PATH_INFO']
-
+	status = '404 Not Found'
+	reply = generateNotFound(environ, environment)
+	headers = [('Content-type', 'text/html')]
 
 
 	if getPost == 'POST':
