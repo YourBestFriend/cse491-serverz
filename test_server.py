@@ -98,7 +98,9 @@ def test_generatePost():
 
 # Test POST /submit call.
 def test_generatePostSubmit():
-    conn = FakeConnection("POST /submit HTTP/1.1\r\n\r\nfirstname=Heyro&lastname=Duncan")
+    conn = FakeConnection("POST /submit HTTP/1.1\r\n\r\n" +\
+			  "Content-Length: 31\r\n\r\n" +\
+			  "firstname=Heyro&lastname=Duncan")
     server.handle_connection(conn)
 
     assert 'HTTP/1.0 200' in conn.sent and \
