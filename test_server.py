@@ -31,7 +31,7 @@ class FakeConnection(object):
 # Test GET / call.
 def test_generateGet():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'GET Name Submission' in conn.sent and \
@@ -43,7 +43,7 @@ def test_generateGet():
 # Test GET /content call.
 def test_generateGetContent():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'Content ^_^' in conn.sent, \
@@ -54,7 +54,7 @@ def test_generateGetContent():
 # Test GET /file call.
 def test_generateGetFile():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'File ^_^' in conn.sent, \
@@ -65,7 +65,7 @@ def test_generateGetFile():
 # Test GET /image call.
 def test_generateGetImage():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'Image ^_^' in conn.sent, \
@@ -76,7 +76,7 @@ def test_generateGetImage():
 # Test GET /submit call.
 def test_generateGetSubmit():
     conn = FakeConnection("GET /submit?firstname=Bill&lastname=Nye HTTP/1.0HTTP/1.1\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'GET Submit' in conn.sent and \
@@ -89,7 +89,7 @@ def test_generateGetSubmit():
 def test_generatePost():
     conn = FakeConnection("POST / HTTP/1.0\r\n" +\
 			  "Content-Length: 0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'Howdy World ^_^' in conn.sent, \
@@ -102,7 +102,7 @@ def test_generatePostSubmit():
     conn = FakeConnection("POST /submit HTTP/1.1\r\n" +\
 			  "Content-Length: 31\r\n\r\n" +\
 			  "firstname=Heyro&lastname=Duncan")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
 	   'POST Submit' in conn.sent and \
@@ -115,7 +115,7 @@ def test_generatePostSubmit():
 def test_PostgenerateNotFound():
     conn = FakeConnection("POST /applesauce HTTP/1.0\r\n" +\
 			  "Content-Length: 0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 404 Not Found' in conn.sent, \
     'Got: %s' % (repr(conn.sent),)
@@ -125,7 +125,7 @@ def test_PostgenerateNotFound():
 # Test Get Not Found.
 def test_GetgenerateNotFound():
     conn = FakeConnection("GET /applesauce HTTP/1.0\r\n\r\n")
-    server.handle_connection(conn)
+    server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 404 Not Found' in conn.sent, \
     'Got: %s' % (repr(conn.sent),)

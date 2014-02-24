@@ -3,10 +3,15 @@ import random
 import socket
 import time
 import urlparse
-import cgi
 import StringIO
 from app import make_app
+import sys
+import os
 
+# !!! NOTICE !!!!
+# Whenever I get stuck I refer to: https://github.com/cameronkeif/cse491-serverz/
+# he is apparently a super smart guy and he lays things out in ways I understand.
+# I have taken numerous ideas from him, as well as the basic structure of my code.
 
 def main():
 	s = socket.socket()         # Create a socket object
@@ -23,13 +28,13 @@ def main():
 	while True:
 	    # Establish connection with client.    
 	    c, (client_host, client_port) = s.accept()
-	    handle_connection(c)
+	    handle_connection(c, host, port)
 
 
 
-def handle_connection(conn):
-	#This header gathering idea was taken from:
-	#https://github.com/cameronkeif/cse491-serverz/blob/hw4/server.py
+def handle_connection(conn, host, port):
+	environ = {}
+
 	#Before using this code any additional calls to conn.recv() would 
 	#cause the server to hang.
 	#----------------------------------------------------------------
@@ -50,8 +55,7 @@ def handle_connection(conn):
 	parsedPath = urlparse.urlparse(firstLine[1])
 	path = parsedPath[2]
 
-	#setup environ
-	environ = {}
+	#create environ entries
 	environ['REQUEST_METHOD'] = getPost
 	environ['PATH_INFO'] = path
 
@@ -83,12 +87,19 @@ def handle_connection(conn):
 		#---------------------------------------
 
 		environ['wsgi.input'] = StringIO.StringIO(postContent)
+		environ['QUERY_STRING'] = ''
 
 
 	elif environ['REQUEST_METHOD'] == 'GET':
 		environ['QUERY_STRING'] = parsedPath.query
+		environ['wsgi.input'] = StringIO.StringIO('')
+
 	wsgi_app = make_app()
-	conn.send(wsgi_app(environ, start_response))
+	ret = wsgi_app(environ, start_response)
+	for item in ret:
+		conn.send(item)
+	if hasattr(ret, 'close'):
+		result.close()
 	conn.close()
     	
 	
