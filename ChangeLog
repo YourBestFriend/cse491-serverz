@@ -22,10 +22,24 @@
  * Added test cases
 
 
-2014-02-05
+2014-02-05  Tim Hasselbeck
 
  * POST can now haddle requests with content-type = multipart/form-data
  * Added a templates folder which now holds the html for each page
  * Added test cases 
 	NOTE: The 3 test cases for the POST requests have a KeyError 
 	      pertaining to 'Content-Length'. I'm not sure why...
+
+
+2014-02-12  Tim Hasselbeck
+
+ * Moved code to app.py
+ * Refractored handle_connection to run WSGI apps
+ * Added further templating and titles to html
+
+
+2014-02-20  Tim Hasselbeck
+
+ * Fixed persistent bug with Testing POST requests
+
+
