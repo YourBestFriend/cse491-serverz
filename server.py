@@ -51,6 +51,7 @@ def handle_connection(conn):
 	path = parsedPath[2]
 
 	#setup environ
+	environ = {}
 	environ['REQUEST_METHOD'] = getPost
 	environ['PATH_INFO'] = path
 
@@ -64,31 +65,31 @@ def handle_connection(conn):
 			conn.send(key + ': ' + value + '\r\n')
 		conn.send('\r\n')
 
-		if environ['REQUEST_METHOD'] == 'POST':
-			#fill the environ(env) dictionary--------
-			requestList = requestData.split('\r\n')
+	if environ['REQUEST_METHOD'] == 'POST':
+		#fill the environ(env) dictionary--------
+		requestList = requestData.split('\r\n')
 
-			i=1
-			while ":" in requestList[i]:
-				requestLine = requestList[i].split(": ")			
-				environ[requestLine[0].upper()] = requestLine[1]
-				i += 1
-			#---------------------------------------
-		
+		i=1
+		while ":" in requestList[i]:
+			requestLine = requestList[i].split(": ")			
+			environ[requestLine[0].upper()] = requestLine[1]
+			i += 1
+		#---------------------------------------
+	
 
-			#get postContent------------------------
-			contentLength = int(environ['CONTENT-LENGTH'])
-			postContent = conn.recv(contentLength)
-			#---------------------------------------
+		#get postContent------------------------
+		contentLength = int(environ['CONTENT-LENGTH'])
+		postContent = conn.recv(contentLength)
+		#---------------------------------------
 
-			environ['wsgi.input'] = StringIO.StringIO(postContent)
+		environ['wsgi.input'] = StringIO.StringIO(postContent)
 
 
-		elif environ['REQUEST_METHOD'] == 'GET':
-			environ['QUERY_STRING'] = parsedPath.query
-		wsgi_app = make_app()#move down if you can
-		conn.send(wsgi_app(environ, start_response))
-		conn.close()
+	elif environ['REQUEST_METHOD'] == 'GET':
+		environ['QUERY_STRING'] = parsedPath.query
+	wsgi_app = make_app()
+	conn.send(wsgi_app(environ, start_response))
+	conn.close()
     	
 	
 

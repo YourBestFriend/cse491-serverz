@@ -87,7 +87,8 @@ def test_generateGetSubmit():
 
 # Test POST / call.
 def test_generatePost():
-    conn = FakeConnection("POST / HTTP/1.0\r\n\r\n")
+    conn = FakeConnection("POST / HTTP/1.0\r\n" +\
+			  "Content-Length: 0\r\n\r\n")
     server.handle_connection(conn)
 
     assert 'HTTP/1.0 200' in conn.sent and \
@@ -98,7 +99,7 @@ def test_generatePost():
 
 # Test POST /submit call.
 def test_generatePostSubmit():
-    conn = FakeConnection("POST /submit HTTP/1.1\r\n\r\n" +\
+    conn = FakeConnection("POST /submit HTTP/1.1\r\n" +\
 			  "Content-Length: 31\r\n\r\n" +\
 			  "firstname=Heyro&lastname=Duncan")
     server.handle_connection(conn)
@@ -112,7 +113,8 @@ def test_generatePostSubmit():
 
 # Test Post Not Found.
 def test_PostgenerateNotFound():
-    conn = FakeConnection("POST /applesauce HTTP/1.0\r\n\r\n")
+    conn = FakeConnection("POST /applesauce HTTP/1.0\r\n" +\
+			  "Content-Length: 0\r\n\r\n")
     server.handle_connection(conn)
 
     assert 'HTTP/1.0 404 Not Found' in conn.sent, \
