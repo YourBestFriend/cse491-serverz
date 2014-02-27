@@ -15,12 +15,12 @@ from wsgiref.validate import validator
 
 #==================================================================================
 import quixote
-from quixote.demo import create_publisher
+#from quixote.demo import create_publisher
 #from quixote.demo.mini_demo import create_publisher
-#from quixote.demo.altdemo import create_publisher
+from quixote.demo.altdemo import create_publisher
 
 # QUIXOTE SWITCH: True = quixote demo app(the uncommented one), False = my app
-if(False):
+if(True):
 	_the_app = None
 	def make_app():
 	    global _the_app
@@ -89,6 +89,7 @@ def handle_connection(conn, host, port):
 			conn.send(key + ': ' + value + '\r\n')
 		conn.send('\r\n')
 
+
 	if environ['REQUEST_METHOD'] == 'POST':
 		#fill the environ(env) dictionary--------
 		requestList = requestData.split('\r\n')
@@ -99,20 +100,22 @@ def handle_connection(conn, host, port):
 			environ[requestLine[0].upper()] = requestLine[1]
 			i += 1
 		#---------------------------------------
-	
-
+		
 		#get postContent------------------------
 		contentLength = int(environ['CONTENT-LENGTH'])
 		postContent = conn.recv(contentLength)
 		#---------------------------------------
 
+		environ['HTTP_COOKIE'] = environ['COOKIE'] if environ.get('COOKIE') else ''
 		environ['wsgi.input'] = StringIO.StringIO(postContent)
 		environ['QUERY_STRING'] = ''
 
 
 	elif environ['REQUEST_METHOD'] == 'GET':
-		environ['QUERY_STRING'] = parsedPath.query
+		environ['HTTP_COOKIE'] = ''
 		environ['wsgi.input'] = StringIO.StringIO('')
+		environ['QUERY_STRING'] = parsedPath.query
+		
 
 	my_app = make_app()
 	validator_app = validator(my_app)

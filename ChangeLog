@@ -49,6 +49,9 @@
  * Improved app.py to host text/plain files and images/jpeg images properly
  * Made a few minor improvements
  * Added a run-qx-server file that is just for reference
+ * Added cookie header handling into server.py
+ * Added imageapp files
+ * Modified the imageapp to display the latest image on the index page
 
 
 
