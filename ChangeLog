@@ -43,3 +43,12 @@
  * Fixed persistent bug with Testing POST requests
 
 
+2014-02-26  Tim Hasselbeck
+
+ * Added easy access to Quixote app demos on my server
+ * Improved app.py to host text/plain files and images/jpeg images properly
+ * Made a few minor improvements
+ * Added a run-qx-server file that is just for reference
+
+
+
