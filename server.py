@@ -5,13 +5,32 @@ import time
 import urlparse
 import StringIO
 from app import make_app
-import sys
-import os
+from wsgiref.validate import validator
+
 
 # !!! NOTICE !!!!
 # Whenever I get stuck I refer to: https://github.com/cameronkeif/cse491-serverz/
 # he is apparently a super smart guy and he lays things out in ways I understand.
 # I have taken numerous ideas from him, as well as the basic structure of my code.
+
+#==================================================================================
+import quixote
+from quixote.demo import create_publisher
+#from quixote.demo.mini_demo import create_publisher
+#from quixote.demo.altdemo import create_publisher
+
+# QUIXOTE SWITCH: True = quixote demo app(the uncommented one), False = my app
+if(False):
+	_the_app = None
+	def make_app():
+	    global _the_app
+
+	    if _the_app is None:
+		p = create_publisher()
+		_the_app = quixote.get_wsgi_app()
+
+	    return _the_app
+#==================================================================================
 
 def main():
 	s = socket.socket()         # Create a socket object
@@ -58,6 +77,7 @@ def handle_connection(conn, host, port):
 	#create environ entries
 	environ['REQUEST_METHOD'] = getPost
 	environ['PATH_INFO'] = path
+	environ['SCRIPT_NAME'] = '' #this is required for quixote demo app to work!
 
 
 
@@ -94,12 +114,11 @@ def handle_connection(conn, host, port):
 		environ['QUERY_STRING'] = parsedPath.query
 		environ['wsgi.input'] = StringIO.StringIO('')
 
-	wsgi_app = make_app()
-	ret = wsgi_app(environ, start_response)
-	for item in ret:
+	my_app = make_app()
+	validator_app = validator(my_app)
+	result = my_app(environ, start_response)
+	for item in result:
 		conn.send(item)
-	if hasattr(ret, 'close'):
-		result.close()
 	conn.close()
     	
 	

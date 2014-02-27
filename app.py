@@ -42,10 +42,12 @@ def simple_app(environ, start_response):
 
 		elif path == '/file':
 			status = '200 OK'
+			headers = [('Content-type', 'text/plain')]
 			reply = generateGetFile(environ, environment)
 
 		elif path == '/image':
 			status = '200 OK'
+			headers = [('Content-type', 'image/jpeg')]
 			reply = generateGetImage(environ, environment)
 
 		elif path == '/submit':
@@ -62,9 +64,7 @@ def simple_app(environ, start_response):
 
 
 	start_response(status, headers)
-	response = []
-	response.append(reply)
-	return response
+	return reply
 
 	
 
@@ -95,10 +95,18 @@ def generateGetContent(environ, environment):
 	return str(environment.get_template("getContent.html").render())
 
 def generateGetFile(environ, environment):
-	return str(environment.get_template("getFile.html").render())
+	text_file = './files/piracy.txt'
+	fp = open(text_file, 'r')
+    	data = [fp.read()]
+    	fp.close
+    	return data
 
 def generateGetImage(environ, environment):
-	return str(environment.get_template("getImage.html").render())
+	image_file = './images/Jellyfish.jpeg'
+	fp = open(image_file, 'r')
+    	data = [fp.read()]
+    	fp.close
+    	return data
 
 def generateGetSubmit(environ, environment):
 	parsedPath = urlparse.parse_qs(environ['QUERY_STRING']);

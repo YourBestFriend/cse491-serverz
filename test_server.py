@@ -57,7 +57,7 @@ def test_generateGetFile():
     server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
-	   'File ^_^' in conn.sent, \
+	   'text/plain' in conn.sent, \
     'Got: %s' % (repr(conn.sent),)
 
 
@@ -68,7 +68,7 @@ def test_generateGetImage():
     server.handle_connection(conn, "arctic.cse.msu.edu", "1234")
 
     assert 'HTTP/1.0 200' in conn.sent and \
-	   'Image ^_^' in conn.sent, \
+	   'image/jpeg' in conn.sent, \
     'Got: %s' % (repr(conn.sent),)
 
 
