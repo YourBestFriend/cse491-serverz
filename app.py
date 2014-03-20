@@ -64,8 +64,13 @@ def simple_app(environ, start_response):
 
 
 	start_response(status, headers)
-	return reply
+	#here an array with a single entry is returned to appease validator()
+	#response = []
+	#response.append(reply)
+	#return response
 
+	#but I'm doing this because that array structure no worky with /file or /image... x'(
+	return reply
 	
 
 
@@ -83,8 +88,8 @@ def generatePostSubmit(environ, environment):
 	FS = cgi.FieldStorage(headers = headers, \
 			      fp = environ['wsgi.input'], \
 			      environ = environ)
-	firstName = FS['firstname'].value
-	lastName = FS['lastname'].value
+	firstName = FS['firstnamePOST'].value
+	lastName = FS['lastnamePOST'].value
 	data = {'firstName': firstName, 'lastName': lastName}
 	return str(environment.get_template("postSubmit.html").render(data))
 
@@ -110,8 +115,8 @@ def generateGetImage(environ, environment):
 
 def generateGetSubmit(environ, environment):
 	parsedPath = urlparse.parse_qs(environ['QUERY_STRING']);
-	firstName = parsedPath['firstname'][0]
-	lastName = parsedPath['lastname'][0]
+	firstName = parsedPath['firstnameGET'][0]
+	lastName = parsedPath['lastnameGET'][0]
 	data = {'firstName': firstName, 'lastName': lastName}
 	return str(environment.get_template("getSubmit.html").render(data))
 

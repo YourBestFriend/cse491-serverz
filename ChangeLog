@@ -54,4 +54,12 @@
  * Modified the imageapp to display the latest image on the index page
 
 
+2014-03-20 Tim Hasselbeck
+
+ * Removed text manipulating javascript from my app
+ * Implemented command line options in server.py to run 3 different apps
+ * Wrote a twill test for my app
+ * worked on implementing AJAX image upload with JQuery. My code wasn't quite working properly. The bit uploaded at the moment is from: https://github.com/matheusldaraujo/cse491-serverz/tree/hw8/imageapp
+
+
 

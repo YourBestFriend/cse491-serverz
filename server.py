@@ -6,31 +6,42 @@ import urlparse
 import StringIO
 from app import make_app
 from wsgiref.validate import validator
-
-
-# !!! NOTICE !!!!
-# Whenever I get stuck I refer to: https://github.com/cameronkeif/cse491-serverz/
-# he is apparently a super smart guy and he lays things out in ways I understand.
-# I have taken numerous ideas from him, as well as the basic structure of my code.
-
-#==================================================================================
+import sys
+import argparse
 import quixote
-#from quixote.demo import create_publisher
-#from quixote.demo.mini_demo import create_publisher
-from quixote.demo.altdemo import create_publisher
+import imageapp
 
-# QUIXOTE SWITCH: True = quixote demo app(the uncommented one), False = my app
-if(True):
-	_the_app = None
-	def make_app():
-	    global _the_app
 
-	    if _the_app is None:
-		p = create_publisher()
-		_the_app = quixote.get_wsgi_app()
 
-	    return _the_app
-#==================================================================================
+
+parser = argparse.ArgumentParser(description='HTTP server create at CSE491 class')
+parser.add_argument('--imageapp', help='Run imageapp WSGI app', action = "store_true", required = False)
+parser.add_argument('--quixote', help='Run quixote.demo.altdemo WSGI app', action = "store_true", required = False)
+parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true", required = False)
+
+#Argument parser and checker
+args = parser.parse_args()
+if (args.imageapp and args.quixote) or (args.imageapp and args.myapp ) or (args.quixote and args.myapp):
+   	print "Only one app may be run at a time."
+   	sys.exit()
+
+if not(args.imageapp or args.quixote or args.myapp):
+    	print "Which app do you want to run?"
+    	sys.exit()
+
+if args.quixote:
+    	#from quixote.demo import create_publisher
+    	#from quixote.demo.mini_demo import create_publisher
+	from quixote.demo.altdemo import create_publisher
+	p = create_publisher()
+
+
+if args.imageapp:
+    	imageapp.setup()
+    	p = imageapp.create_publisher()
+
+
+
 
 def main():
 	s = socket.socket()         # Create a socket object
@@ -110,16 +121,42 @@ def handle_connection(conn, host, port):
 		environ['wsgi.input'] = StringIO.StringIO(postContent)
 		environ['QUERY_STRING'] = ''
 
+		#required for validator to not complain
+		environ['SERVER_NAME'] = host
+		environ['SERVER_PORT'] = str(port)
+		environ['wsgi.version'] = (1, 0)
+		environ['wsgi.errors'] = sys.stderr
+		environ['wsgi.multithread'] = False
+        	environ['wsgi.multiprocess'] = False
+        	environ['wsgi.run_once'] = False
+        	environ['wsgi.url_scheme'] = "http"
+
 
 	elif environ['REQUEST_METHOD'] == 'GET':
 		environ['HTTP_COOKIE'] = ''
 		environ['wsgi.input'] = StringIO.StringIO('')
 		environ['QUERY_STRING'] = parsedPath.query
-		
 
-	my_app = make_app()
-	validator_app = validator(my_app)
-	result = my_app(environ, start_response)
+		#required for validator to not complain
+		environ['SERVER_NAME'] = 'localhost'
+		environ['SERVER_PORT'] = str(port)
+		environ['wsgi.version'] = (1, 0)
+		environ['wsgi.errors'] = sys.stderr
+		environ['wsgi.multithread'] = False
+        	environ['wsgi.multiprocess'] = False
+        	environ['wsgi.run_once'] = False
+        	environ['wsgi.url_scheme'] = "http"
+
+
+
+
+	if args.myapp:              #validator is disabled because it no worky with /file or /image... x'(
+        	new_app = make_app()#validator(make_app())
+
+    	elif args.quixote or args.imageapp:
+        	new_app = quixote.get_wsgi_app()
+		
+	result = new_app(environ, start_response)
 	for item in result:
 		conn.send(item)
 	conn.close()

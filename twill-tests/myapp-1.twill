@@ -1,0 +1,28 @@
+go /
+code 200
+find "ZZZzzzz -_-"
+
+go /content
+code 200
+find "Content"
+
+go /image
+code 200
+
+go /file
+code 200
+find "You wouldn't download a car."
+
+go /
+formvalue 1 firstnameGET "Soupy"
+formvalue 1 lastnameGET "Sails"
+submit SubmitGET
+code 200
+find "Howdy thar Mr. Soupy Sails!"
+
+go /
+formvalue 2 firstnamePOST "Doctor"
+formvalue 2 lastnamePOST "Horrible"
+submit SubmitPOST
+code 200
+find "Howdy thar Mr. Doctor Horrible!"
