@@ -10,44 +10,36 @@ import sys
 import argparse
 import quixote
 import imageapp
-
-
-
-
-parser = argparse.ArgumentParser(description='HTTP server create at CSE491 class')
-parser.add_argument('--imageapp', help='Run imageapp WSGI app', action = "store_true", required = False)
-parser.add_argument('--quixote', help='Run quixote.demo.altdemo WSGI app', action = "store_true", required = False)
-parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true", required = False)
-
-#Argument parser and checker
-args = parser.parse_args()
-if (args.imageapp and args.quixote) or (args.imageapp and args.myapp ) or (args.quixote and args.myapp):
-   	print "Only one app may be run at a time."
-   	sys.exit()
-
-if not(args.imageapp or args.quixote or args.myapp):
-    	print "Which app do you want to run?"
-    	sys.exit()
-
-if args.quixote:
-    	#from quixote.demo import create_publisher
-    	#from quixote.demo.mini_demo import create_publisher
-	from quixote.demo.altdemo import create_publisher
-	p = create_publisher()
-
-
-if args.imageapp:
-    	imageapp.setup()
-    	p = imageapp.create_publisher()
+import quotes
+import chat
 
 
 
 
 def main():
+	parser = argparse.ArgumentParser(description='Servers applications')
+	parser.add_argument('-p', metavar='-p', type=int, nargs='?', default=-1, help='the port number')
+	parser.add_argument('-A', metavar='-A', type=str, nargs=1, help='the app to run (image, altdemo, or myapp)')
+
+	desiredApp = parser.parse_args().A[0]
+	desiredPort = parser.parse_args().p
+
+	supportedApps = ['myapp', 'image', 'altdemo', 'quotes', 'chat']
+
+	if desiredApp not in supportedApps:
+		print "I'm afraid this app is not currently supported"
+	   	sys.exit()
+
+
 	s = socket.socket()         # Create a socket object
 	host = socket.getfqdn()     # Get local machine name
-	port = random.randint(8000, 9999)
+
+	port = desiredPort
+	if port < 8000 or port > 9999:
+      		port = random.randint(8000,9999)
+
 	s.bind((host, port))        # Bind to the port
+
 
 	print 'Starting server on', host, port
 	print 'The Web server URL for this would be http://%s:%d/' % (host, port)
@@ -58,11 +50,11 @@ def main():
 	while True:
 	    # Establish connection with client.    
 	    c, (client_host, client_port) = s.accept()
-	    handle_connection(c, host, port)
+	    handle_connection(c, host, port, desiredApp)
 
 
 
-def handle_connection(conn, host, port):
+def handle_connection(conn, host, port, desiredApp):
 	environ = {}
 
 	#Before using this code any additional calls to conn.recv() would 
@@ -149,12 +141,29 @@ def handle_connection(conn, host, port):
 
 
 
+	#serve the desired application
+	if desiredApp == 'myapp':    #validator is disabled because it no worky with /file or /image... x'(
+		new_app = make_app()#validator(make_app())
 
-	if args.myapp:              #validator is disabled because it no worky with /file or /image... x'(
-        	new_app = make_app()#validator(make_app())
+    	elif desiredApp == 'image':
+        	imageapp.setup()
+    		p = imageapp.create_publisher()
+		new_app = quixote.get_wsgi_app()
 
-    	elif args.quixote or args.imageapp:
-        	new_app = quixote.get_wsgi_app()
+	elif desiredApp == 'altdemo':
+		#from quixote.demo import create_publisher
+	    	#from quixote.demo.mini_demo import create_publisher
+		from quixote.demo.altdemo import create_publisher
+		p = create_publisher()
+		new_app = quixote.get_wsgi_app()
+
+	elif desiredApp == 'quotes':
+		directory_path = './quotes/'
+    		new_app = quotes.create_quotes_app(directory_path + 'quotes.txt', directory_path + 'html')
+
+	elif desiredApp == 'chat':
+		new_app = chat.create_chat_app('./chat/html')
+
 		
 	result = new_app(environ, start_response)
 	for item in result:

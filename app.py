@@ -4,6 +4,8 @@ import cgi
 import urlparse
 import jinja2
 from wsgiref.util import setup_testing_defaults
+import os
+
 
 # A relatively simple WSGI application. It's going to print out the
 # environment dictionary after being updated by setup_testing_defaults
@@ -50,9 +52,19 @@ def simple_app(environ, start_response):
 			headers = [('Content-type', 'image/jpeg')]
 			reply = generateGetImage(environ, environment)
 
+		elif path == '/thumbnails':
+			status = '200 OK'
+			reply = generateGetThumbnails(environ, environment)	
+
 		elif path == '/submit':
 			status = '200 OK'
 			reply = generateGetSubmit(environ, environment)
+
+		#this hosts each picture for the thumbnails page
+		elif '/picture' in path:
+			status = '200 OK'
+			headers = [('Content-type', 'image/jpeg')]
+			reply = generateGetPicture(environ, environment)
 
 		else:
 			status = '404 Not Found'
@@ -108,6 +120,21 @@ def generateGetFile(environ, environment):
 
 def generateGetImage(environ, environment):
 	image_file = './images/Jellyfish.jpeg'
+	fp = open(image_file, 'r')
+    	data = [fp.read()]
+    	fp.close
+    	return data
+
+def generateGetThumbnails(environ, environment):
+	thumbs = []
+	for item in sorted(os.listdir('images')):
+		thumbs.append(item)
+	data = {}
+	data['thumbs'] = thumbs
+	return str(environment.get_template("getThumbnails.html").render(data))
+
+def generateGetPicture(environ, environment):
+	image_file = './images/' + environ['PATH_INFO'][8:]
 	fp = open(image_file, 'r')
     	data = [fp.read()]
     	fp.close
