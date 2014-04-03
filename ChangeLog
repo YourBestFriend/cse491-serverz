@@ -54,7 +54,7 @@
  * Modified the imageapp to display the latest image on the index page
 
 
-2014-03-20 Tim Hasselbeck
+2014-03-20  Tim Hasselbeck
 
  * Removed text manipulating javascript from my app
  * Implemented command line options in server.py to run 3 different apps
@@ -62,12 +62,20 @@
  * Project - I worked on implementing AJAX image upload with JQuery. My code wasn't quite working properly. The bit uploaded at the moment is from: https://github.com/matheusldaraujo/cse491-serverz/tree/hw8/imageapp
 
 
-2014-03-26 Tim Hasselbeck
+2014-03-26  Tim Hasselbeck
 
  * The quotes app is now runnable with -A quotes in server.py
  * I fixed the way I was running apps in server.py to match the spec better
  * The chat app is now runnable with -A chat in server.py
  * The chat app shows timestamps by messages
  * Project - I added a Thumbnails page to myapp which provides a list of images resized to thumbnails along with a link to the hosted image. This page will pick up any images placed into the images folder.
+
+
+2014-04-03  Tim Hasselbeck
+
+ * I fixed an issue where the server would crash when multiple instances of Publisher were created
+ * Added a style template from oswd.org into imageapp
+ * I'm having an issue with uploading images to imageapp... I'm trying to fix it
+ 
 
 

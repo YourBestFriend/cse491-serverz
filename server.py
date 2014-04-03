@@ -143,29 +143,32 @@ def handle_connection(conn, host, port, desiredApp):
 
 	#serve the desired application
 	if desiredApp == 'myapp':    #validator is disabled because it no worky with /file or /image... x'(
-		new_app = make_app()#validator(make_app())
+		wsgi_app = make_app()#validator(make_app())
 
     	elif desiredApp == 'image':
-        	imageapp.setup()
-    		p = imageapp.create_publisher()
-		new_app = quixote.get_wsgi_app()
+		try: #prevents multiple instances of Publisher, which crashes the server
+        		imageapp.setup()
+			p = imageapp.create_publisher()
+		except RuntimeError:
+      			pass
+		wsgi_app = quixote.get_wsgi_app()
 
 	elif desiredApp == 'altdemo':
 		#from quixote.demo import create_publisher
 	    	#from quixote.demo.mini_demo import create_publisher
 		from quixote.demo.altdemo import create_publisher
 		p = create_publisher()
-		new_app = quixote.get_wsgi_app()
+		wsgi_app = quixote.get_wsgi_app()
 
 	elif desiredApp == 'quotes':
 		directory_path = './quotes/'
-    		new_app = quotes.create_quotes_app(directory_path + 'quotes.txt', directory_path + 'html')
+    		wsgi_app = quotes.create_quotes_app(directory_path + 'quotes.txt', directory_path + 'html')
 
 	elif desiredApp == 'chat':
-		new_app = chat.create_chat_app('./chat/html')
+		wsgi_app = chat.create_chat_app('./chat/html')
 
 		
-	result = new_app(environ, start_response)
+	result = wsgi_app(environ, start_response)
 	for item in result:
 		conn.send(item)
 	conn.close()
