@@ -1,18 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Ajax Upload Image:</h1>
+Upload any jpg, tif or png image
 
-<form enctype='multipart/form-data' id="form" action='upload_receive' method='POST'>
-Filename: <input type='file' id="file" name='file'><p>
-<input style="display:none" type='submit'>
+<form enctype='multipart/form-data' action='upload_receive' method='POST'>
+Filename: <input type='file' name='file'><p>
+<input type='submit'>
 </form>
-
-<div id="success" style="display:none" >
-<h2>Ajax Upload Done</h2>
-</div>
-	<img id="image" src=""/>
-
-
-<script type="text/javascript" src="ajax_upload_image.js" ></script>
 {% endblock %}

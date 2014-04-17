@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<a href='upload'>Upload an image</a> |
-<a href='image'>Show most recent image</a>
-
-<div>
-<img width=40% src='image_raw?special=latest'/>
-</div>
+<h1>Image Upload</h1>
+<ul><a href='upload'>Upload an image</a></ul>
+<ul><a href='image'>Show most recent image</a></ul>
+<hr>
+<h1>All Images</h1>
+<ul><a href='image_list'>View All Images</a></ul>
+<hr>
+<b>Most Recent Upload:</b>
+</br>
+<img width=40% src='image_raw'/>
 {% endblock %}

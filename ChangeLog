@@ -74,8 +74,30 @@
 2014-04-03  Tim Hasselbeck
 
  * I fixed an issue where the server would crash when multiple instances of Publisher were created
- * Added a style template from oswd.org into imageapp
+ * Project - Added a style template from oswd.org into imageapp
  * I'm having an issue with uploading images to imageapp... I'm trying to fix it
  
 
+2014-04-10  Tim Hasselbeck
+
+ * Project - Change imageapp to support JPEG and TIFF.
+
+
+2014-04-11  Tim Hasselbeck
+
+ * Made the cookie app work on server.py
+ * Changed imageapp to store its images in a SQL database.
+
+
+2014-04-12  Tim Hasselbeck
+
+ * Swapped out my server.py code with code from github.com/cameronkeif/cse491-serverz/ in order to solve an issue with image uploads.
+ * Project - Write a URL handler so that each image is referred to by its number.
+ * Project - Add the ability to comment on images.
+
+
+2014-04-13  Tim Hasselbeck
+
+ * Project - Add data persistence in sqlite.
+ * Project - Implement starring, ranking, and a simple recommendation system for your image app image list.
 

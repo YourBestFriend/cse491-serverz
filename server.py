@@ -3,177 +3,180 @@ import random
 import socket
 import time
 import urlparse
-import StringIO
-from app import make_app
-from wsgiref.validate import validator
+import os
 import sys
 import argparse
-import quixote
 import imageapp
+import quixote
+import quixote.demo.altdemo
+import app
 import quotes
 import chat
+import cookieapp
 
+from StringIO import StringIO
+
+
+#!!!NOTICE!!!
+#I was having issues uploading images to imageapp. To solve this I am now using the 
+#server.py from: https://github.com/cameronkeif/cse491-serverz/
 
 
 
 def main():
-	parser = argparse.ArgumentParser(description='Servers applications')
-	parser.add_argument('-p', metavar='-p', type=int, nargs='?', default=-1, help='the port number')
-	parser.add_argument('-A', metavar='-A', type=str, nargs=1, help='the app to run (image, altdemo, or myapp)')
+    # Set up the argument parser
+    parser = argparse.ArgumentParser(description='Server for several WSGI apps')
+    parser.add_argument('-p', metavar='-p', type=int, nargs='?', default=-1,
+                   help='an integer for the port number')
 
-	desiredApp = parser.parse_args().A[0]
-	desiredPort = parser.parse_args().p
+    parser.add_argument('-A', metavar='-A', type=str, nargs=1,
+                   help='the app to run (image, altdemo, or myapp)')
 
-	supportedApps = ['myapp', 'image', 'altdemo', 'quotes', 'chat']
+    args = parser.parse_args()
+    try:
+      appname = args.A[0]
+    except TypeError:
+      appname = "HOLYSHITINVALIDAPPWTF"
 
-	if desiredApp not in supportedApps:
-		print "I'm afraid this app is not currently supported"
-	   	sys.exit()
+    validApps = ['myapp', 'image', 'altdemo', 'quotes', 'chat', 'cookie']
+    if appname not in validApps:
+      raise Exception("Invalid application name. Please enter -A followed by 'myapp', " +
+        "'image', 'altdemo', 'quotes', 'cookie', or 'chat'")
+    s = socket.socket() # Create a socket object
+    host = socket.getfqdn() # Get local machine name
+    port = args.p
 
-
-	s = socket.socket()         # Create a socket object
-	host = socket.getfqdn()     # Get local machine name
-
-	port = desiredPort
-	if port < 8000 or port > 9999:
-      		port = random.randint(8000,9999)
-
-	s.bind((host, port))        # Bind to the port
-
-
-	print 'Starting server on', host, port
-	print 'The Web server URL for this would be http://%s:%d/' % (host, port)
-
-	s.listen(5)                 # Now wait for client connection.
-
-	print 'Entering infinite loop; hit CTRL-C to exit'
-	while True:
-	    # Establish connection with client.    
-	    c, (client_host, client_port) = s.accept()
-	    handle_connection(c, host, port, desiredApp)
+    if port < 8000 or port > 9999:
+      port = random.randint(8000,9999)
 
 
+    s.bind((host, port)) # Bind to the port
 
-def handle_connection(conn, host, port, desiredApp):
-	environ = {}
+    print 'Starting server on', host, port
+    print 'The Web server URL for this would be http://%s:%d/' % (host, port)
 
-	#Before using this code any additional calls to conn.recv() would 
-	#cause the server to hang.
-	#----------------------------------------------------------------
-	requestData = conn.recv(1)
+    s.listen(5) # Now wait for client connection.
 
-  	# This will get all the headers
-  	while requestData[-4:] != '\r\n\r\n':
-    		requestData += conn.recv(1)
-	#----------------------------------------------------------------
+    print 'Entering infinite loop; hit CTRL-C to exit'
+    while True:
+        # Establish connection with client.
+        c, (client_host, client_port) = s.accept()
+        print 'Got connection from', client_host, client_port, '\n'
+        handle_connection(c, host, port, appname)
 
-    	
-   	#print 'Got connection from', client_host, client_port  <<<<NO WORKY!!!
-    	print requestData
+def handle_connection(conn, host, port, appname):
+  environ = {}
+  request = conn.recv(1)
+  
+  # This will get all the headers
+  while request[-4:] != '\r\n\r\n':
+    new = conn.recv(1)
+    if new == '':
+        return
+    else:
+        request += new
 
-	firstLine = requestData.split('\r\n')[0].split(' ')
+  request, data = request.split('\r\n',1)
+  headers = {}
+  for line in data.split('\r\n')[:-2]:
+      key, val = line.split(': ', 1)
+      headers[key.lower()] = val
 
-	getPost = firstLine[0]
-	parsedPath = urlparse.urlparse(firstLine[1])
-	path = parsedPath[2]
+  first_line_of_request_split = request.split('\r\n')[0].split(' ')
 
-	#create environ entries
-	environ['REQUEST_METHOD'] = getPost
-	environ['PATH_INFO'] = path
-	environ['SCRIPT_NAME'] = '' #this is required for quixote demo app to work!
+  # Path is the second element in the first line of the request
+  # separated by whitespace. (Between GET and HTTP/1.1). GET/POST is first.
+  http_method = first_line_of_request_split[0]
+  environ['REQUEST_METHOD'] = first_line_of_request_split[0]
 
+  try:
+    parsed_url = urlparse.urlparse(first_line_of_request_split[1])
+    environ['PATH_INFO'] = parsed_url[2]
+    env['QUERY_STRING'] = parsed_url[4]
+  except:
+    pass
 
+  urlInfo = urlparse.urlparse(request.split(' ', 3)[1])
+  environ['REQUEST_METHOD'] = 'GET'
+  environ['PATH_INFO'] = urlInfo[2]
+  environ['QUERY_STRING'] = urlInfo[4]
+  environ['CONTENT_TYPE'] = 'text/html'
+  environ['CONTENT_LENGTH'] = str(0)
+  environ['SCRIPT_NAME'] = ''
+  environ['SERVER_NAME'] = socket.getfqdn()
+  environ['SERVER_PORT'] = str(port)
+  environ['wsgi.version'] = (1, 0)
+  environ['wsgi.errors'] = sys.stderr
+  environ['wsgi.multithread'] = False
+  environ['wsgi.multiprocess'] = False
+  environ['wsgi.run_once'] = False
+  environ['wsgi.url_scheme'] = 'http'
+  environ['HTTP_COOKIE'] = headers['cookie'] if 'cookie' in headers.keys() else ''
 
+  def start_response(status, response_headers):
+        conn.send('HTTP/1.0 ')
+        conn.send(status)
+        conn.send('\r\n')
+        for pair in response_headers:
+            key, header = pair
+            conn.send(key + ': ' + header + '\r\n')
+        conn.send('\r\n')
 
-	def start_response(status, response_headers):
-		conn.send('HTTP/1.0 ' + status + '\r\n')
-		for entry in response_headers:
-			key, value = entry
-			conn.send(key + ': ' + value + '\r\n')
-		conn.send('\r\n')
+  content = ''
+  if request.startswith('POST '):
+      environ['REQUEST_METHOD'] = 'POST'
+      environ['CONTENT_LENGTH'] = str(headers['content-length'])
+      try:
+        environ['CONTENT_TYPE'] = headers['content-type']
+      except:
+        pass
 
+      cLen = int(headers['content-length'])
+      while len(content) < cLen:
+          content += conn.recv(1)
+      
+  environ['wsgi.input'] = StringIO(content)
+  
+  # Create the appropriate wsgi app based on the command-line parameter
+  if appname == "image":
+    try:
+      # Sometimes this gets called multiple times. Blergh.
+      p = imageapp.create_publisher()
+      imageapp.setup()
+    except RuntimeError:
+      pass
+  
+    wsgi_app = quixote.get_wsgi_app()
 
-	if environ['REQUEST_METHOD'] == 'POST':
-		#fill the environ(env) dictionary--------
-		requestList = requestData.split('\r\n')
+  elif appname == "myapp":
+    wsgi_app = app.make_app()
+  elif appname == "altdemo":
+    try:
+      p = quixote.demo.altdemo.create_publisher()
+    except RuntimeError:
+      pass
 
-		i=1
-		while ":" in requestList[i]:
-			requestLine = requestList[i].split(": ")			
-			environ[requestLine[0].upper()] = requestLine[1]
-			i += 1
-		#---------------------------------------
-		
-		#get postContent------------------------
-		contentLength = int(environ['CONTENT-LENGTH'])
-		postContent = conn.recv(contentLength)
-		#---------------------------------------
+    wsgi_app = quixote.get_wsgi_app()
+  elif appname == "quotes":
+    # The quotes files are in the 'quotes' subdirectory
+    directory_path = './quotes/'
+    wsgi_app = quotes.create_quotes_app(directory_path + 'quotes.txt', directory_path + 'html')
 
-		environ['HTTP_COOKIE'] = environ['COOKIE'] if environ.get('COOKIE') else ''
-		environ['wsgi.input'] = StringIO.StringIO(postContent)
-		environ['QUERY_STRING'] = ''
+  elif appname == "chat":
+    # The chat files are in the 'quotes' subdirectory
+    wsgi_app = chat.create_chat_app('./chat/html')
 
-		#required for validator to not complain
-		environ['SERVER_NAME'] = host
-		environ['SERVER_PORT'] = str(port)
-		environ['wsgi.version'] = (1, 0)
-		environ['wsgi.errors'] = sys.stderr
-		environ['wsgi.multithread'] = False
-        	environ['wsgi.multiprocess'] = False
-        	environ['wsgi.run_once'] = False
-        	environ['wsgi.url_scheme'] = "http"
+  elif appname == "cookie":
+    wsgi_app = cookieapp.wsgi_app
 
-
-	elif environ['REQUEST_METHOD'] == 'GET':
-		environ['HTTP_COOKIE'] = ''
-		environ['wsgi.input'] = StringIO.StringIO('')
-		environ['QUERY_STRING'] = parsedPath.query
-
-		#required for validator to not complain
-		environ['SERVER_NAME'] = 'localhost'
-		environ['SERVER_PORT'] = str(port)
-		environ['wsgi.version'] = (1, 0)
-		environ['wsgi.errors'] = sys.stderr
-		environ['wsgi.multithread'] = False
-        	environ['wsgi.multiprocess'] = False
-        	environ['wsgi.run_once'] = False
-        	environ['wsgi.url_scheme'] = "http"
-
-
-
-	#serve the desired application
-	if desiredApp == 'myapp':    #validator is disabled because it no worky with /file or /image... x'(
-		wsgi_app = make_app()#validator(make_app())
-
-    	elif desiredApp == 'image':
-		try: #prevents multiple instances of Publisher, which crashes the server
-        		imageapp.setup()
-			p = imageapp.create_publisher()
-		except RuntimeError:
-      			pass
-		wsgi_app = quixote.get_wsgi_app()
-
-	elif desiredApp == 'altdemo':
-		#from quixote.demo import create_publisher
-	    	#from quixote.demo.mini_demo import create_publisher
-		from quixote.demo.altdemo import create_publisher
-		p = create_publisher()
-		wsgi_app = quixote.get_wsgi_app()
-
-	elif desiredApp == 'quotes':
-		directory_path = './quotes/'
-    		wsgi_app = quotes.create_quotes_app(directory_path + 'quotes.txt', directory_path + 'html')
-
-	elif desiredApp == 'chat':
-		wsgi_app = chat.create_chat_app('./chat/html')
-
-		
-	result = wsgi_app(environ, start_response)
-	for item in result:
-		conn.send(item)
-	conn.close()
-    	
-	
+  result = wsgi_app(environ, start_response)
+  try:
+    for response in result:
+      conn.send(response)
+  finally:
+    if hasattr(result, 'close'):
+      result.close()
+  conn.close()
 
 if __name__ == '__main__':
    main()
