@@ -105,4 +105,6 @@
 2014-04-24  Tim Hasselbeck
 
  * Project - Write a WSGI middleware component that does recording and playback of all WSGI traffic between server and component. The recording can be viewed in playback.txt
+ * Project - Add account creation, login, and authentication.
+ * I was going to get project 9 implemented as well, but I had some issues and I don't need it so I gave up. Much of the code is still there.
 

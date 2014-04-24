@@ -13,14 +13,40 @@
  <div id="menu">
   <ul id="nav">
    <li><a href="/">Home</a></li>
-   <li><a href="upload">Upload</a></li>
+   <li class="uploadLink"><a href="upload">Upload</a></li>
+   <!--<li class="pleaseLogin"><a href="login">Please Login</a></li>-->
    <li><a href="image">Show most recent image</a></li>
   </ul>
  </div>
 </div>
 <div id="content">
+
+<span style="display:none" id='loggedInAs'>Logged in as: <span id='username'> {{ username }}
+  </span></span>
+<div id="notLoggedInOptions" style="display:none">
+<a href="login">Login</a> | <a href="create_account">Create Account</a>
+</div>
+<p><a style="display:none" id="logoutLink" href="logout">Logout</a>
+</div>
 {% block content %}
 {% endblock %}
 </div>
+
 </body>
+
+<script type="text/javascript">
+var username = $.trim($('#username').text())
+console.log(username)
+
+if(username != '')
+{
+  //$(".uploadLink").hide()
+  //$(".pleaseLogin").show()
+  $('#loggedInAs').show()
+  $('#logoutLink').show()
+} else {
+  $('#notLoggedInOptions').show()
+}
+</script>
+
 </html>

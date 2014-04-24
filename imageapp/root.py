@@ -2,6 +2,7 @@ import quixote
 from quixote.directory import Directory, export, subdir
 from quixote.util import StaticFile
 import os.path
+import sqlite3
 
 from . import html, image, css
 
@@ -10,7 +11,7 @@ class RootDirectory(Directory):
 
     @export(name='')                    # this makes it public.
     def index(self):
-        return html.render('index.html')
+        return html.render('index.html', self.find_username())
 
     @export(name='style.css')
     def style_css_upload(self):
@@ -22,7 +23,7 @@ class RootDirectory(Directory):
 
     @export(name='upload')
     def upload(self):
-        return html.render('upload.html')
+        return html.render('upload.html', self.find_username())
 
     @export(name='upload_receive')
     def upload_receive(self):
@@ -34,17 +35,17 @@ class RootDirectory(Directory):
         print 'received file with name:', the_file.base_filename
         data = the_file.read(the_file.get_size())
 
-        image.add_image(the_file.base_filename, data)
+        image.add_image(the_file.base_filename, data)#, username, data)
 
         return quixote.redirect('./')
 
     @export(name='image')
     def image(self):
-        return html.render('image.html')
+        return html.render('image.html', self.find_username())
 
     @export(name='image_list')
     def image_list(self):
-        return html.render('image_list.html')
+        return html.render('image_list.html', self.find_username())
 
     @export(name='image_count')
     def image_count(self):
@@ -150,3 +151,81 @@ class RootDirectory(Directory):
             i = -1
 
         return image.decrement_image_score(i)
+
+    def find_username(self):
+        username = quixote.get_cookie('username')
+        if not username:
+            username = ''
+        return dict(username = username)
+
+    def set_cookie(self, username):
+        quixote.get_response().set_cookie('username', username)
+        return quixote.redirect('./')
+
+    @export(name='get_owner')
+    def get_owner(self):
+        request = quixote.get_request()
+
+        try:
+            i = int(request.form['num'])
+        except:
+            i = -1
+
+        return image.get_owner(i)
+
+    @export(name='login')
+    def login(self):
+        return html.render('login.html', self.find_username())
+
+    @export(name='login_receive')
+    def login_receive(self):
+        request = quixote.get_request()
+        username = request.form['username']
+        password = request.form['password']
+        if(self.authenticate(username, password)):
+            return self.set_cookie(username)
+        return quixote.redirect("./")
+
+    @export(name='logout')
+    def logout(self):
+        response = quixote.get_response()
+        response.set_cookie('username', 'NONE; Expires=Thu, 01-Jan-1970 00:00:01 GMT')
+        return quixote.redirect('./')
+
+    @export(name='create_account')
+    def create_account(self):
+        return html.render('create_account.html', self.find_username())
+
+    @export(name='create_account_receive')
+    def create_account_receive(self):
+        request = quixote.get_request()
+        print request.form
+        username = request.form['username']
+        password = request.form['password']
+
+        db = sqlite3.connect('images.sqlite')
+
+        c = db.cursor()
+
+        # Latest image
+        print username
+        c.execute('SELECT username FROM user WHERE username=(?)', (username,))
+
+        if(c.fetchone() == None):
+            db.execute('INSERT INTO user VALUES (?,?)', (username, password))
+            db.commit()
+
+    def authenticate(self, username, password):
+        db = sqlite3.connect('images.sqlite')
+
+        c = db.cursor()
+
+        # Latest image
+        c.execute('SELECT * FROM user where username=(?)', (username,))
+        try:
+            username, pwd = c.fetchone()
+        except:
+            return False
+
+        return pwd == password
+
