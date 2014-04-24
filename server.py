@@ -15,6 +15,7 @@ import chat
 import cookieapp
 
 from StringIO import StringIO
+from TrafficRecorder.TrafficRecorder import TrafficRecorder
 
 
 #!!!NOTICE!!!
@@ -146,7 +147,7 @@ def handle_connection(conn, host, port, appname):
     except RuntimeError:
       pass
   
-    wsgi_app = quixote.get_wsgi_app()
+    wsgi_app = TrafficRecorder(quixote.get_wsgi_app())
 
   elif appname == "myapp":
     wsgi_app = app.make_app()

@@ -101,3 +101,8 @@
  * Project - Add data persistence in sqlite.
  * Project - Implement starring, ranking, and a simple recommendation system for your image app image list.
 
+
+2014-04-24  Tim Hasselbeck
+
+ * Project - Write a WSGI middleware component that does recording and playback of all WSGI traffic between server and component. The recording can be viewed in playback.txt
+
