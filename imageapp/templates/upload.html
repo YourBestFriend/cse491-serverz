@@ -4,7 +4,32 @@
 Upload any jpg, tif or png image
 
 <form enctype='multipart/form-data' action='upload_receive' method='POST'>
-Filename: <input type='file' name='file'><p>
-<input type='submit'>
+	Filename: <input type='file' name='file'><p>
+	<input type='submit'>
 </form>
+
+<script type='text/javascript'>
+	$(document).ready(function(e) {
+
+	  $("#form").on('submit', (function(e) {
+	    e.preventDefault();
+	    var formData = new FormData(this);
+
+	    $.ajax({
+	      type:'POST',
+	      url:$(this).attr('action'),
+	      data:formData,
+	      cache:false,
+	      contentType:false,
+	      processData:false,
+	      success:function(data) {
+		console.log('success!');
+	      },
+	      error:function(data) {
+		console.log('error!');
+	      }
+	    });
+	  }));
+	});
+</script>
 {% endblock %}
